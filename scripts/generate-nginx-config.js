@@ -10,15 +10,7 @@
 import { join, dirname } from "@std/path";
 import { ensureDir } from "@std/fs";
 
-interface Config {
-  serverName: string;
-  sslCert: string;
-  sslKey: string;
-  enableHTTP2: boolean;
-  enableHTTP3: boolean;
-}
-
-const config: Config = {
+const config = {
   serverName: Deno.env.get("SERVER_NAME") || "localhost",
   sslCert: Deno.env.get("SSL_CERT") || "/etc/nginx/ssl/cert.pem",
   sslKey: Deno.env.get("SSL_KEY") || "/etc/nginx/ssl/key.pem",
@@ -261,7 +253,7 @@ add_header Cross-Origin-Resource-Policy "same-origin" always;
 add_header Expect-CT "max-age=86400, enforce" always;
 `;
 
-async function main(): Promise<void> {
+async function main() {
   const scriptDir = dirname(new URL(import.meta.url).pathname);
   const configDir = join(scriptDir, "..", "config");
 

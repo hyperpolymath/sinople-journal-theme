@@ -8,56 +8,53 @@
 import { assertEquals, assertExists } from "@std/assert";
 
 // Mock DOM environment for testing
-function createMockDOM(): void {
-  // @ts-ignore - creating mock globals for testing
+function createMockDOM() {
   globalThis.document = {
     documentElement: {
       style: {
-        setProperty: (_name: string, _value: string) => {},
-        getPropertyValue: (_name: string) => "",
+        setProperty: (_name, _value) => {},
+        getPropertyValue: (_name) => "",
       },
       dataset: {},
       classList: {
-        add: (_className: string) => {},
-        remove: (_className: string) => {},
-        contains: (_className: string) => false,
-        toggle: (_className: string) => false,
+        add: (_className) => {},
+        remove: (_className) => {},
+        contains: (_className) => false,
+        toggle: (_className) => false,
       },
     },
-    getElementById: (_id: string) => null,
-    querySelector: (_selector: string) => null,
-    querySelectorAll: (_selector: string) => [],
-    addEventListener: (_event: string, _callback: () => void) => {},
+    getElementById: (_id) => null,
+    querySelector: (_selector) => null,
+    querySelectorAll: (_selector) => [],
+    addEventListener: (_event, _callback) => {},
     body: {
       innerHTML: "",
       classList: {
-        add: (_className: string) => {},
-        remove: (_className: string) => {},
-        contains: (_className: string) => false,
+        add: (_className) => {},
+        remove: (_className) => {},
+        contains: (_className) => false,
       },
     },
   };
 
-  // @ts-ignore - creating mock globals for testing
   globalThis.localStorage = {
-    _data: {} as Record<string, string>,
-    getItem(key: string): string | null {
+    _data: {},
+    getItem(key) {
       return this._data[key] || null;
     },
-    setItem(key: string, value: string): void {
+    setItem(key, value) {
       this._data[key] = value;
     },
-    removeItem(key: string): void {
+    removeItem(key) {
       delete this._data[key];
     },
-    clear(): void {
+    clear() {
       this._data = {};
     },
   };
 
-  // @ts-ignore - creating mock globals for testing
   globalThis.window = {
-    matchMedia: (_query: string) => ({
+    matchMedia: (_query) => ({
       matches: false,
       media: _query,
       onchange: null,
@@ -90,9 +87,8 @@ function createMockDOM(): void {
 }
 
 // Reset mocks before each test
-function resetMocks(): void {
+function resetMocks() {
   createMockDOM();
-  // @ts-ignore - accessing mock
   globalThis.localStorage.clear();
 }
 
@@ -100,10 +96,9 @@ Deno.test("Accessibility - font scale applies CSS custom property", () => {
   resetMocks();
 
   let appliedValue = "";
-  // @ts-ignore - modifying mock
   globalThis.document.documentElement.style.setProperty = (
-    name: string,
-    value: string,
+    name,
+    value,
   ) => {
     if (name === "--text-scale") {
       appliedValue = value;
@@ -112,7 +107,6 @@ Deno.test("Accessibility - font scale applies CSS custom property", () => {
 
   // Simulate applying font scale
   const scale = 1.2;
-  // @ts-ignore - accessing mock
   document.documentElement.style.setProperty("--text-scale", scale.toString());
 
   assertEquals(appliedValue, "1.2");
@@ -149,10 +143,8 @@ Deno.test("Accessibility - font scale respects maximum (1.5)", () => {
 Deno.test("Accessibility - theme persists to localStorage", () => {
   resetMocks();
 
-  // @ts-ignore - accessing mock
   globalThis.localStorage.setItem("theme", "dark");
 
-  // @ts-ignore - accessing mock
   const savedTheme = globalThis.localStorage.getItem("theme");
 
   assertEquals(savedTheme, "dark");
@@ -161,10 +153,8 @@ Deno.test("Accessibility - theme persists to localStorage", () => {
 Deno.test("Accessibility - contrast toggle persists preference", () => {
   resetMocks();
 
-  // @ts-ignore - accessing mock
   globalThis.localStorage.setItem("contrast", "high");
 
-  // @ts-ignore - accessing mock
   const savedContrast = globalThis.localStorage.getItem("contrast");
 
   assertEquals(savedContrast, "high");
@@ -174,8 +164,7 @@ Deno.test("Accessibility - system dark mode detection", () => {
   resetMocks();
 
   // Mock dark mode preference
-  // @ts-ignore - modifying mock
-  globalThis.window.matchMedia = (query: string) => ({
+  globalThis.window.matchMedia = (query) => ({
     matches: query === "(prefers-color-scheme: dark)",
     media: query,
     onchange: null,
@@ -186,7 +175,6 @@ Deno.test("Accessibility - system dark mode detection", () => {
     dispatchEvent: () => true,
   });
 
-  // @ts-ignore - accessing mock
   const prefersDark = globalThis.window.matchMedia(
     "(prefers-color-scheme: dark)",
   ).matches;
@@ -198,11 +186,11 @@ Deno.test("Accessibility - theme toggle button ARIA attributes", () => {
   resetMocks();
 
   const mockButton = {
-    attributes: {} as Record<string, string>,
-    setAttribute(name: string, value: string): void {
+    attributes: {},
+    setAttribute(name, value) {
       this.attributes[name] = value;
     },
-    getAttribute(name: string): string | null {
+    getAttribute(name) {
       return this.attributes[name] || null;
     },
   };
@@ -219,7 +207,6 @@ Deno.test("Accessibility - skip links exist in DOM interface", () => {
   resetMocks();
 
   // The interface should support querySelectorAll for skip-link elements
-  // @ts-ignore - accessing mock
   assertExists(globalThis.document.querySelectorAll);
 });
 
@@ -229,7 +216,7 @@ Deno.test("Accessibility - keyboard navigation Escape key handling", () => {
   let escapeCalled = false;
 
   // Mock event listener for Escape key
-  const handleKeydown = (event: { key: string }) => {
+  const handleKeydown = (event) => {
     if (event.key === "Escape") {
       escapeCalled = true;
     }
@@ -246,10 +233,10 @@ Deno.test("Accessibility - menu toggle aria-expanded attribute", () => {
 
   const mockToggle = {
     _expanded: false,
-    getAttribute(_name: string): string {
+    getAttribute(_name) {
       return this._expanded ? "true" : "false";
     },
-    setAttribute(_name: string, value: string): void {
+    setAttribute(_name, value) {
       this._expanded = value === "true";
     },
   };

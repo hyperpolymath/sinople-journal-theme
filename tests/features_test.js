@@ -8,29 +8,26 @@
 import { assertEquals } from "@std/assert";
 
 // Mock CSS.supports
-function mockCSSSupports(supportedFeatures: string[]): void {
-  // @ts-ignore - creating mock globals for testing
+function mockCSSSupports(supportedFeatures) {
   globalThis.CSS = {
-    supports: (query: string): boolean => {
+    supports: (query) => {
       return supportedFeatures.some((f) => query.includes(f));
     },
   };
 }
 
 // Mock window/document for feature detection
-function createFeatureDetectionMocks(features: Record<string, boolean>): void {
-  // @ts-ignore - creating mock globals for testing
+function createFeatureDetectionMocks(features) {
   globalThis.document = {
     documentElement: {
       dataset: {},
       classList: {
-        add: (_className: string) => {},
+        add: (_className) => {},
       },
     },
     startViewTransition: features.viewTransitions ? () => {} : undefined,
   };
 
-  // @ts-ignore - creating mock globals for testing
   globalThis.window = {
     IntersectionObserver: features.intersectionObserver ? class {} : undefined,
     ResizeObserver: features.resizeObserver ? class {} : undefined,
@@ -44,48 +41,35 @@ function createFeatureDetectionMocks(features: Record<string, boolean>): void {
     showOpenFilePicker: features.fileSystemAccess ? () => {} : undefined,
   };
 
-  // @ts-ignore - creating mock globals for testing
   globalThis.navigator = {
     gpu: features.webGPU ? {} : undefined,
     share: features.webShare ? () => {} : undefined,
   };
 
-  // @ts-ignore - creating mock globals for testing
   globalThis.WebAssembly = features.wasm
     ? {
         instantiate: () => Promise.resolve({}),
       }
     : undefined;
 
-  // @ts-ignore - creating mock globals for testing
   globalThis.RTCPeerConnection = features.webRTC ? class {} : undefined;
 }
 
 // Feature detection function (mirrors ReScript implementation)
-function detectFeatures(): Record<string, boolean> {
-  const features: Record<string, boolean> = {};
+function detectFeatures() {
+  const features = {};
 
-  // @ts-ignore - accessing mock
   features.intersectionObserver = "IntersectionObserver" in globalThis.window;
-  // @ts-ignore - accessing mock
   features.resizeObserver = "ResizeObserver" in globalThis.window;
-  // @ts-ignore - accessing mock
   features.viewTransitions = "startViewTransition" in globalThis.document;
-  // @ts-ignore - accessing mock
   features.wasm =
     typeof globalThis.WebAssembly !== "undefined" &&
-    // @ts-ignore - accessing mock
     typeof globalThis.WebAssembly.instantiate === "function";
-  // @ts-ignore - accessing mock
   features.webCrypto =
     typeof globalThis.window.crypto?.subtle?.generateKey === "function";
-  // @ts-ignore - accessing mock
   features.webGPU = "gpu" in globalThis.navigator;
-  // @ts-ignore - accessing mock
   features.webRTC = typeof globalThis.RTCPeerConnection !== "undefined";
-  // @ts-ignore - accessing mock
   features.fileSystemAccess = "showOpenFilePicker" in globalThis.window;
-  // @ts-ignore - accessing mock
   features.webShare = "share" in globalThis.navigator;
 
   return features;
@@ -145,7 +129,6 @@ Deno.test("Features - detects WebAssembly support", () => {
 Deno.test("Features - detects Container Queries support via CSS.supports", () => {
   mockCSSSupports(["container-type"]);
 
-  // @ts-ignore - accessing mock
   const hasContainerQueries = globalThis.CSS.supports(
     "container-type: inline-size",
   );
@@ -155,7 +138,6 @@ Deno.test("Features - detects Container Queries support via CSS.supports", () =>
 Deno.test("Features - detects :has() selector support", () => {
   mockCSSSupports(["selector(:has"]);
 
-  // @ts-ignore - accessing mock
   const hasHasSelector = globalThis.CSS.supports("selector(:has(*))");
   assertEquals(hasHasSelector, true);
 });

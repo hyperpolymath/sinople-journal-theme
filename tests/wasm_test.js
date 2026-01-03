@@ -7,25 +7,18 @@
 
 import { assertEquals, assertExists } from "@std/assert";
 
-// Mock WASM module exports
-interface MockWasmExports {
-  calculate_reading_time: (content: string) => number;
-  sanitize_html: (html: string) => string;
-  hash_password: (password: string) => string;
-}
-
 // Create mock WASM module
-function createMockWasm(): MockWasmExports {
+function createMockWasm() {
   return {
-    calculate_reading_time: (content: string): number => {
+    calculate_reading_time: (content) => {
       const wordCount = content.split(/\s+/).filter((w) => w.length > 0).length;
       return Math.ceil(wordCount / 200);
     },
-    sanitize_html: (html: string): string => {
+    sanitize_html: (html) => {
       // Basic sanitization - remove script tags
       return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
     },
-    hash_password: (_password: string): string => {
+    hash_password: (_password) => {
       // Mock hash - in real WASM this would use proper hashing
       return "mocked_hash_" + _password.length;
     },
@@ -33,12 +26,12 @@ function createMockWasm(): MockWasmExports {
 }
 
 // JavaScript fallback implementations (mirrors WasmLoader.res)
-function calculateReadingTimeFallback(content: string): number {
+function calculateReadingTimeFallback(content) {
   const wordCount = content.split(" ").filter((w) => w.length > 0).length;
   return Math.ceil(wordCount / 200);
 }
 
-async function hashPasswordFallback(password: string): Promise<string> {
+async function hashPasswordFallback(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
