@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
 name: PHP Security Check
 on: [push, pull_request]
 jobs:
@@ -112,13 +113,13 @@ jobs:
       - name: Verify php-aegis integration
         run: |
           # Check that php-aegis is installed
-          if php -r "echo class_exists('\\PhpAegis\\Sanitizer') ? 'loaded' : 'not-found';" | grep -q 'loaded'; then
+          if php -r "echo class_exists('\PhpAegis\Sanitizer') ? 'loaded' : 'not-found';" | grep -q 'loaded'; then
             echo "✅ php-aegis classes available"
           else
             echo "::warning::php-aegis not loaded - fallbacks will be used"
           fi
 
           # Verify TurtleEscaper for semantic web features
-          if php -r "echo class_exists('\\PhpAegis\\TurtleEscaper') ? 'loaded' : 'not-found';" | grep -q 'loaded'; then
+          if php -r "echo class_exists('\PhpAegis\TurtleEscaper') ? 'loaded' : 'not-found';" | grep -q 'loaded'; then
             echo "✅ TurtleEscaper available for RDF output"
           fi
